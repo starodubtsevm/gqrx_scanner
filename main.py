@@ -19,9 +19,6 @@ def load_config(freq_csv='freq.csv'):
 
 def tune_rec(freq, mode, tag, sql):
 
-    print ("Настройка приемника")
-    print (freq, mode, tag, sql)
-    
     Rec._set_freq(freq)
     Rec._set_mode(mode)
     Rec._set_squelch(sql)
@@ -35,27 +32,40 @@ def get_RSSI():
         time.sleep(0.45)
     res = res / 3
     return int(res)
+    
+def update_screen():
+
+    return 0
 
 if __name__ == "__main__":
 
     freq_set  = load_config()
 
     Rec = Receiver()
+    key_flag = 0
+    
+    while(1):
+        for key, values in freq_set.items():
+            freq = key
+            mode = freq_set[key]["mode"]
+            tag = freq_set[key]["tag"]
+            sql = -30
 
-    for key, values in freq_set.items():
-        freq = key
-        mode = freq_set[key]["mode"]
-        tag = freq_set[key]["tag"]
-        sql = -30
+            tune_rec(freq, mode, tag, sql)
 
-        tune_rec(freq, mode, tag, sql)
+            time.sleep(0.2)
 
-        time.sleep(0.2)
+            res =  get_RSSI()
 
-        res =  get_RSSI()
-        print (res)
+            if res >= sql:
+                time.sleep(0.2)
+                while res >= sql:
+                    print (res)
+                    time.sleep(3)
+                    res = get_RSSI()
 
-        #print ("Анализ данных уровня")
+            else:
+                print (freq, res)
 
 
 
